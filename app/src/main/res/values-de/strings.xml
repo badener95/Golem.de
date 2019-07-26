@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_message_title">Die Seite konnte nicht geladen werden</string>
+    <string name="error_message_text">Überprüfe deine Verbindung und versuche es noch einmal</string>
+    <string name="chooser_share">URL teilen</string>
+    <string name="chooser_open_app">App wählen</string>
+    <string name="reloading_page">Seite wird neu geladen</string>
+    <string name="try_again">Erneut versuchen</string>
+    <string name="tap_back_again">Zum Verlassen erneut tippen</string>
+    <string name="golem_logo">golem.de Logo</string>
+    <string name="cannot_load_url">URL kann nicht geladen werden</string>
+</resources>

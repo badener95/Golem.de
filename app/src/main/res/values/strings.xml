@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">golem.de</string>
+    <string name="error_message_title">Page could not be loaded</string>
+    <string name="error_message_text">Check your connection and try again</string>
+    <string name="chooser_share">Share URL</string>
+    <string name="chooser_open_app">Choose app</string>
+    <string name="reloading_page">Page is reloading</string>
+    <string name="try_again">Try again</string>
+    <string name="tap_back_again">Tap again to exit</string>
+    <string name="golem_logo">golem.de logo</string>
+    <string name="cannot_load_url">URL cannot be loaded</string>
+</resources>
