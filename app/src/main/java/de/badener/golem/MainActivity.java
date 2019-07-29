@@ -1,6 +1,8 @@
 package de.badener.golem;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements AdvancedWebView.L
         webView.addPermittedHostname("forum.golem.de");
         webView.addPermittedHostname("account.golem.de");
         webView.addPermittedHostname("suche.golem.de");
+        webView.addPermittedHostname("redirect.golem.de");
         webView.addPermittedHostname("glm.io");
 
         // Swipe to refresh layout
@@ -260,7 +263,9 @@ public class MainActivity extends AppCompatActivity implements AdvancedWebView.L
     @Override
     public void onBackPressed() {
         boolean isStartPage = webView.getUrl().equals(GOLEM_URL) || webView.getUrl().equals(GOLEM_URL + "#top");
-        if (webView.canGoBack() && !isStartPage && !hasError) {
+        if (!webView.canGoBack() && !isStartPage) {
+            webView.loadUrl(GOLEM_URL);
+        } else if (webView.canGoBack() && !isStartPage && !hasError) {
             webView.goBack();
         } else if (timeBackPressed + 2000 > System.currentTimeMillis()) {
             super.onBackPressed();
@@ -275,17 +280,28 @@ public class MainActivity extends AppCompatActivity implements AdvancedWebView.L
     protected void onResume() {
         super.onResume();
         webView.onResume();
+        // Load last URL on resume
+        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+        String lastUrl = sharedPreferences.getString("last_url", GOLEM_URL);
+        if (!lastUrl.equals(webView.getUrl())) {
+            webView.loadUrl(lastUrl);
+        }
     }
 
     @Override
     protected void onPause() {
-        webView.onPause();
         super.onPause();
+        webView.onPause();
+        // Save last URL on pause
+        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("last_url", webView.getUrl());
+        editor.apply();
     }
 
     @Override
     protected void onDestroy() {
-        webView.onDestroy();
         super.onDestroy();
+        webView.onDestroy();
     }
 }
