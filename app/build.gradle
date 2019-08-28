@@ -7,8 +7,8 @@ android {
         applicationId "de.badener.golem"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 2
-        versionName '1.1'
+        versionCode 3
+        versionName '1.2'
         resConfigs "en", "de"
     }
 
@@ -24,7 +24,5 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.0.0'
-    implementation 'com.github.delight-im:Android-AdvancedWebView:v3.2.0'
 }

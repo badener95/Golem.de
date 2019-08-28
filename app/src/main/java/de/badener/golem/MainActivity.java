@@ -1,9 +1,9 @@
 package de.badener.golem;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,74 +18,60 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.ByteArrayInputStream;
 
-import im.delight.android.webview.AdvancedWebView;
-
-public class MainActivity extends AppCompatActivity implements AdvancedWebView.Listener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String GOLEM_URL = "https://www.golem.de/";
 
-    private CoordinatorLayout coordinatorLayout;
     private SwipeRefreshLayout swipe;
-    private AdvancedWebView webView;
+    private WebView webView;
     private ProgressBar progressBar;
+    private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton fabShare;
     private FrameLayout fullScreen;
-    private ConstraintLayout errorScreen;
 
     private boolean isFullScreen;
-    private boolean hasError;
+    private String externalURL;
     private String snackbarText;
     private long timeBackPressed;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        coordinatorLayout = findViewById(R.id.coordinatorLayout);
         swipe = findViewById(R.id.swipeRefreshLayout);
         webView = findViewById(R.id.webView);
         progressBar = findViewById(R.id.progressBar);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
         fabShare = findViewById(R.id.fabShare);
         fullScreen = findViewById(R.id.fullScreen);
-        errorScreen = findViewById(R.id.errorScreen);
-
-        webView.setListener(this, this);
 
         // WebView options
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setDatabaseEnabled(true);
+        webView.getSettings().setAppCacheEnabled(true);
+        webView.getSettings().setGeolocationEnabled(false);
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setSupportZoom(true);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
         webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
-
-        // AdvancedWebView options
-        webView.setThirdPartyCookiesEnabled(false);
-        webView.setMixedContentAllowed(false);
-        webView.setGeolocationEnabled(false);
-        // Define permitted host names
-        webView.addPermittedHostname("www.golem.de");
-        webView.addPermittedHostname("video.golem.de");
-        webView.addPermittedHostname("forum.golem.de");
-        webView.addPermittedHostname("account.golem.de");
-        webView.addPermittedHostname("suche.golem.de");
-        webView.addPermittedHostname("redirect.golem.de");
-        webView.addPermittedHostname("glm.io");
+        webView.getSettings().setAppCachePath(getApplicationContext().getCacheDir().getAbsolutePath());
 
         // Swipe to refresh layout
-        swipe.setProgressBackgroundColorSchemeResource(R.color.colorPrimary);
+        swipe.setProgressBackgroundColorSchemeResource(R.color.colorDarkGrey);
         swipe.setColorSchemeResources(R.color.colorAccent, android.R.color.white);
         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -94,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements AdvancedWebView.L
             }
         });
 
-        // Fab with share action
+        // FAB with share action
         fabShare.hide();
         coordinatorLayout.setVisibility(View.VISIBLE);
         fabShare.setOnClickListener(new View.OnClickListener() {
@@ -115,17 +101,6 @@ public class MainActivity extends AppCompatActivity implements AdvancedWebView.L
                 int deltaScrollY = scrollY - oldScrollY;
                 if (deltaScrollY > 10) fabShare.hide();
                 if (deltaScrollY < -10 && progressBar.getVisibility() == View.GONE) fabShare.show();
-            }
-        });
-
-        // Button with reload action shown in the error screen
-        MaterialButton buttonReload = findViewById(R.id.buttonReload);
-        buttonReload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                webView.reload();
-                snackbarText = getString(R.string.reloading_page);
-                showSnackbar();
             }
         });
 
@@ -154,10 +129,18 @@ public class MainActivity extends AppCompatActivity implements AdvancedWebView.L
                 getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
             }
 
-            // Update the progress bar
+            // Update the progress bar, FAB and swipe to refresh layout accordingly
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 progressBar.setProgress(newProgress);
+                if (newProgress == 100) {
+                    progressBar.setVisibility(View.GONE);
+                    fabShare.show();
+                    swipe.setRefreshing(false);
+                } else {
+                    progressBar.setVisibility(View.VISIBLE);
+                    fabShare.hide();
+                }
             }
         });
 
@@ -176,51 +159,36 @@ public class MainActivity extends AppCompatActivity implements AdvancedWebView.L
                 return new WebResourceResponse("text/plain", "utf-8",
                         new ByteArrayInputStream("".getBytes()));
             }
+
+            // Handle external links
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                String host = request.getUrl().getHost();
+                externalURL = url;
+                if (url.startsWith("tel") || url.startsWith("sms") ||
+                        url.startsWith("mailto") || url.startsWith("whatsapp")) {
+                    // Support some common intents
+                    openExternalURL();
+                    return true;
+                } else if (host == null || host.equals("www.golem.de") ||
+                        host.equals("video.golem.de") || host.equals("forum.golem.de") ||
+                        host.equals("account.golem.de") || host.equals("suche.golem.de") ||
+                        host.equals("redirect.golem.de") || host.equals("glm.io")) {
+                    // Don't override and load in this app
+                    return false;
+                } else {
+                    // Open all other URLs in the browser or external app
+                    openExternalURL();
+                    return true;
+                }
+            }
         });
     }
 
-    // Show progress bar and hide fab on page started loading
-    @Override
-    public void onPageStarted(String url, Bitmap favicon) {
-        progressBar.setVisibility(View.VISIBLE);
-        fabShare.hide();
-    }
-
-    // Hide progress bar and show fab on page finished loading;
-    // also hide the error screen if it has been visible before because of an error
-    @Override
-    public void onPageFinished(String url) {
-        hasError = false;
-        progressBar.setVisibility(View.GONE);
-        swipe.setRefreshing(false);
-        if (!hasError) {
-            swipe.setVisibility(View.VISIBLE);
-            webView.setVisibility(View.VISIBLE);
-            fabShare.show();
-            errorScreen.setVisibility(View.GONE);
-        }
-    }
-
-    // Hide ui elements and show error screen if an error occurs
-    @Override
-    public void onPageError(int errorCode, String description, String failingUrl) {
-        hasError = true;
-        progressBar.setVisibility(View.GONE);
-        swipe.setVisibility(View.GONE);
-        webView.setVisibility(View.GONE);
-        fabShare.hide();
-        errorScreen.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onDownloadRequested(String url, String suggestedFilename, String mimeType,
-                                    long contentLength, String contentDisposition, String userAgent) {
-    }
-
-    // Handle external links
-    @Override
-    public void onExternalPageRequest(String url) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+    // Open external URLs
+    private void openExternalURL() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(externalURL));
         if (intent.resolveActivity(getPackageManager()) != null) {
             // There is at least one app that can handle this link
             startActivity(Intent.createChooser(intent, getString(R.string.chooser_open_app)));
@@ -265,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements AdvancedWebView.L
         boolean isStartPage = webView.getUrl().equals(GOLEM_URL) || webView.getUrl().equals(GOLEM_URL + "#top");
         if (!webView.canGoBack() && !isStartPage) {
             webView.loadUrl(GOLEM_URL);
-        } else if (webView.canGoBack() && !isStartPage && !hasError) {
+        } else if (webView.canGoBack() && !isStartPage) {
             webView.goBack();
         } else if (timeBackPressed + 2000 > System.currentTimeMillis()) {
             super.onBackPressed();
@@ -297,11 +265,5 @@ public class MainActivity extends AppCompatActivity implements AdvancedWebView.L
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("last_url", webView.getUrl());
         editor.apply();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        webView.onDestroy();
     }
 }
