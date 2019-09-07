@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabShare;
     private FrameLayout fullScreen;
 
+    private boolean hasIntent;
+    private boolean isLoading;
     private boolean isFullScreen;
     private String externalURL;
     private String snackbarText;
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setAppCachePath(getApplicationContext().getCacheDir().getAbsolutePath());
 
         // Swipe to refresh layout
-        swipe.setProgressBackgroundColorSchemeResource(R.color.colorDarkGrey);
+        swipe.setProgressBackgroundColorSchemeResource(R.color.colorPrimary);
         swipe.setColorSchemeResources(R.color.colorAccent, android.R.color.white);
         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -104,8 +106,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Load the URL
-        webView.loadUrl(GOLEM_URL);
+        // Handle intents
+        Intent intent = getIntent();
+        Uri uri = intent.getData();
+        String url;
+        if (uri != null) {
+            hasIntent = true;
+            url = uri.toString();
+        } else {
+            url = GOLEM_URL;
+        }
+        // Load either the GOLEM_URL or the URL provided by an intent
+        webView.loadUrl(url);
 
         webView.setWebChromeClient(new WebChromeClient() {
 
@@ -134,10 +146,12 @@ public class MainActivity extends AppCompatActivity {
             public void onProgressChanged(WebView view, int newProgress) {
                 progressBar.setProgress(newProgress);
                 if (newProgress == 100) {
+                    isLoading = false;
                     progressBar.setVisibility(View.GONE);
                     fabShare.show();
                     swipe.setRefreshing(false);
                 } else {
+                    isLoading = true;
                     progressBar.setVisibility(View.VISIBLE);
                     fabShare.hide();
                 }
@@ -231,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         boolean isStartPage = webView.getUrl().equals(GOLEM_URL) || webView.getUrl().equals(GOLEM_URL + "#top");
-        if (!webView.canGoBack() && !isStartPage) {
+        if (!webView.canGoBack() && !isStartPage && !hasIntent) {
             webView.loadUrl(GOLEM_URL);
         } else if (webView.canGoBack() && !isStartPage) {
             webView.goBack();
@@ -245,25 +259,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
-        webView.onResume();
-        // Load last URL on resume
+        // Load last visited URL on resume
         SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         String lastUrl = sharedPreferences.getString("last_url", GOLEM_URL);
-        if (!lastUrl.equals(webView.getUrl())) {
+        if (!lastUrl.equals(webView.getUrl()) && !isLoading && !hasIntent) {
             webView.loadUrl(lastUrl);
         }
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
-        webView.onPause();
-        // Save last URL on pause
-        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("last_url", webView.getUrl());
-        editor.apply();
+        if (!hasIntent) {
+            // Save last URL on pause
+            SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("last_url", webView.getUrl());
+            editor.apply();
+        }
     }
 }

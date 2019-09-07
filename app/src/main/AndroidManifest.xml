@@ -18,11 +18,24 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
-                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="www.golem.de" />
+                <data android:host="video.golem.de" />
+                <data android:host="forum.golem.de" />
+                <data android:host="account.golem.de" />
+                <data android:host="suche.golem.de" />
+            </intent-filter>
+
         </activity>
-
     </application>
-
 </manifest>
