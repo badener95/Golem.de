@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">golem.de</string>
+    <string name="app_name" translatable="false">Golem.de</string>
     <string name="chooser_share">Share URL</string>
     <string name="chooser_open_app">Choose app</string>
     <string name="tap_back_again">Tap again to exit</string>

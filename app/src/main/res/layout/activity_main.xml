@@ -38,8 +38,7 @@
             android:layout_margin="16dp"
             android:src="@drawable/ic_share_outline"
             app:backgroundTint="@color/colorPrimary"
-            app:fabSize="auto"
-            app:rippleColor="@color/colorRipple" />
+            app:fabSize="auto" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Swipe to refresh layout
         swipe.setProgressBackgroundColorSchemeResource(R.color.colorPrimary);
-        swipe.setColorSchemeResources(R.color.colorAccent, android.R.color.white);
+        swipe.setColorSchemeResources(R.color.colorAccent, R.color.colorDrawables);
         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
         View view = snackbar.getView();
         view.getBackground().setColorFilter(getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_ATOP);
         TextView textView = view.findViewById(R.id.snackbar_text);
-        textView.setTextColor(getColor(android.R.color.white));
+        textView.setTextColor(getColor(R.color.colorDrawables));
         snackbar.show();
     }
 

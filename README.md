@@ -1,4 +1,4 @@
-# golem.de (inoffiziell)
+# Golem.de (inoffiziell)
 Einfache App fuer Android 6.0+ um [www.golem.de](https://www.golem.de) aufzurufen.
 
 ## Funktionen
@@ -7,4 +7,4 @@ Einfache App fuer Android 6.0+ um [www.golem.de](https://www.golem.de) aufzurufe
 * Werbung wird blockiert :sunglasses:
 
 ## Downloads
-Downloads sind direkt auf [GitHub](https://github.com/badener95/golem.de/releases/latest) verfügbar.
+Downloads sind direkt auf [GitHub](https://github.com/badener95/Golem.de/releases/latest) verfügbar.
