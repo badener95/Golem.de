@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (host == null || host.equals("www.golem.de") ||
                         host.equals("video.golem.de") || host.equals("forum.golem.de") ||
                         host.equals("account.golem.de") || host.equals("suche.golem.de") ||
+                        host.equals("it-profis.golem.de") || host.equals("pc.golem.de") ||
                         host.equals("redirect.golem.de") || host.equals("glm.io")) {
                     // Don't override and load in this app
                     return false;

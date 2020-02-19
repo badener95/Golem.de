@@ -34,6 +34,8 @@
                 <data android:host="forum.golem.de" />
                 <data android:host="account.golem.de" />
                 <data android:host="suche.golem.de" />
+                <data android:host="it-profis.golem.de" />
+                <data android:host="pc.golem.de" />
             </intent-filter>
 
         </activity>
