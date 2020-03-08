@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +18,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -236,9 +237,9 @@ public class MainActivity extends AppCompatActivity {
     private void showSnackbar() {
         Snackbar snackbar = Snackbar.make(coordinatorLayout, snackbarText, Snackbar.LENGTH_SHORT);
         View view = snackbar.getView();
-        view.getBackground().setColorFilter(getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_ATOP);
+        DrawableCompat.setTint(view.getBackground(), ContextCompat.getColor(this, R.color.colorPrimary));
         TextView textView = view.findViewById(R.id.snackbar_text);
-        textView.setTextColor(getColor(R.color.colorDrawables));
+        textView.setTextColor(ContextCompat.getColor(this, R.color.colorDrawables));
         snackbar.show();
     }
 
