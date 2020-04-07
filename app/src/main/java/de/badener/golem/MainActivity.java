@@ -4,12 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -72,6 +75,15 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setDisplayZoomControls(false);
         webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
         webView.getSettings().setAppCachePath(getApplicationContext().getCacheDir().getAbsolutePath());
+        // Enable dark mode for WebView
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            int isLightThemeEnabled = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            if (isLightThemeEnabled == Configuration.UI_MODE_NIGHT_NO) {
+                webView.getSettings().setForceDark(WebSettings.FORCE_DARK_OFF);
+            } else {
+                webView.getSettings().setForceDark(WebSettings.FORCE_DARK_ON);
+            }
+        }
 
         // Swipe to refresh layout
         swipe.setProgressBackgroundColorSchemeResource(R.color.colorPrimary);
@@ -96,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Hide/show fab on scrolling down/up
+        // Hide/show FAB on scrolling down/up
         webView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View view, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
@@ -140,6 +152,18 @@ public class MainActivity extends AppCompatActivity {
                 isFullScreen = false;
                 fullScreen.setVisibility(View.GONE);
                 getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                int isLightThemeEnabled = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                if (isLightThemeEnabled == Configuration.UI_MODE_NIGHT_NO) {
+                    // Light theme is enabled, restore light status bar and nav bar
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        View decorView = getWindow().getDecorView();
+                        decorView.setSystemUiVisibility(
+                                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                                        | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                    } else {
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    }
+                }
             }
 
             // Update the progress bar, FAB and swipe to refresh layout accordingly

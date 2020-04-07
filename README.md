@@ -3,6 +3,7 @@ Einfache App fuer Android 6.0+ um [www.golem.de](https://www.golem.de) aufzurufe
 
 ## Funktionen
 * Artikel lesen und teilen
+* Automatisches dunkles Design bei Nacht
 * Vollbildmodus fuer Videos
 * Werbung wird blockiert :sunglasses:
 
