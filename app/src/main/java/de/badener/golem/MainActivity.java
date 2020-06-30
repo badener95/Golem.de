@@ -17,12 +17,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -45,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean isLoading;
     private boolean isFullScreen;
     private String externalURL;
-    private String snackbarText;
     private long timeBackPressed;
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -169,7 +165,11 @@ public class MainActivity extends AppCompatActivity {
             // Update the progress bar, FAB and swipe to refresh layout accordingly
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
-                progressBar.setProgress(newProgress);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    progressBar.setProgress(newProgress, true);
+                } else {
+                    progressBar.setProgress(newProgress);
+                }
                 if (newProgress == 100) {
                     isLoading = false;
                     progressBar.setVisibility(View.GONE);
@@ -234,8 +234,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(Intent.createChooser(intent, getString(R.string.chooser_open_app)));
         } else {
             // There is no app
-            snackbarText = getString(R.string.cannot_load_url);
-            showSnackbar();
+            Snackbar.make(coordinatorLayout, R.string.cannot_load_url, Snackbar.LENGTH_SHORT)
+                    .show();
         }
     }
 
@@ -257,16 +257,6 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
-    // Show snackbar with custom background and text color
-    private void showSnackbar() {
-        Snackbar snackbar = Snackbar.make(coordinatorLayout, snackbarText, Snackbar.LENGTH_SHORT);
-        View view = snackbar.getView();
-        DrawableCompat.setTint(view.getBackground(), ContextCompat.getColor(this, R.color.colorPrimary));
-        TextView textView = view.findViewById(R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(this, R.color.colorDrawables));
-        snackbar.show();
-    }
-
     // Prevent the back button from closing the app
     @Override
     public void onBackPressed() {
@@ -278,8 +268,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (timeBackPressed + 2000 > System.currentTimeMillis()) {
             super.onBackPressed();
         } else {
-            snackbarText = getString(R.string.tap_back_again);
-            showSnackbar();
+            Snackbar.make(coordinatorLayout, R.string.tap_back_again, Snackbar.LENGTH_SHORT)
+                    .show();
             timeBackPressed = System.currentTimeMillis();
         }
     }
