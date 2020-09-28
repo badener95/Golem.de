@@ -7,8 +7,8 @@ android {
         applicationId "de.badener.golem"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 9
-        versionName '1.8'
+        versionCode 10
+        versionName '1.9'
         resConfigs "en", "de"
     }
 
@@ -30,7 +30,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.android.material:material:1.2.1'
 }

@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -24,8 +23,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.io.ByteArrayInputStream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setDatabaseEnabled(true);
-        webView.getSettings().setAppCacheEnabled(true);
         webView.getSettings().setGeolocationEnabled(false);
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setLoadWithOverviewMode(true);
@@ -70,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
         webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
-        webView.getSettings().setAppCachePath(getApplicationContext().getCacheDir().getAbsolutePath());
         // Enable dark mode for WebView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             int isLightThemeEnabled = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -185,20 +180,6 @@ public class MainActivity extends AppCompatActivity {
 
         webView.setWebViewClient(new WebViewClient() {
 
-            // Block all hosts except necessary ones (ad blocker)
-            @Override
-            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                String host = request.getUrl().getHost();
-                // Check whether request comes from permitted host
-                if (host == null || host.contains("golem.de") || host.contains("narando.com") ||
-                        host.contains("bootstrapcdn.com") || host.contains("glm.io")) {
-                    return super.shouldInterceptRequest(view, request);
-                }
-                // Host is not permitted, override request with empty response
-                return new WebResourceResponse("text/plain", "utf-8",
-                        new ByteArrayInputStream("".getBytes()));
-            }
-
             // Handle external links
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -213,7 +194,8 @@ public class MainActivity extends AppCompatActivity {
                 } else if (host == null || host.equals("www.golem.de") ||
                         host.equals("video.golem.de") || host.equals("forum.golem.de") ||
                         host.equals("account.golem.de") || host.equals("suche.golem.de") ||
-                        host.equals("it-profis.golem.de") || host.equals("pc.golem.de") ||
+                        host.equals("it-profis.golem.de") || host.equals("jobs.golem.de") ||
+                        host.equals("preisvergleich.golem.de") || host.equals("pc.golem.de") ||
                         host.equals("redirect.golem.de") || host.equals("glm.io")) {
                     // Don't override and load in this app
                     return false;

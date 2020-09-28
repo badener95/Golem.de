@@ -35,6 +35,8 @@
                 <data android:host="account.golem.de" />
                 <data android:host="suche.golem.de" />
                 <data android:host="it-profis.golem.de" />
+                <data android:host="jobs.golem.de" />
+                <data android:host="preisvergleich.golem.de" />
                 <data android:host="pc.golem.de" />
             </intent-filter>
 
